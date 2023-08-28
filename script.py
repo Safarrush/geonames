@@ -39,19 +39,6 @@ def load_geonames_data():
     return geoname_dict
 
 
-def create_name_index(geoname_dict):
-    morph = pymorphy2.MorphAnalyzer()
-    name_index = {}
-
-    for city_id, city_data in geoname_dict.items():
-        city_name_normalized = morph.parse(city_data['name'])[0].normal_form
-        if city_name_normalized not in name_index:
-            name_index[city_name_normalized] = []
-        name_index[city_name_normalized].append(city_data)
-
-    return name_index
-
-
 # Создание и заполнение базы данных SQLite
 def create_database(geoname_dict):
     conn = sqlite3.connect("geonames.db")
@@ -85,27 +72,6 @@ def create_database(geoname_dict):
                             data["timezone"]))
     conn.commit()
     conn.close()
-
-
-# Парсинг строки данных о городе и создание словаря с информацией
-def parse_geonames_data(geonames_data):
-    geoname_dict = {}
-    for line in geonames_data:
-        fields = line.strip().split("\t")
-        geonameid = int(fields[0])
-        name = fields[1]
-        latitude = float(fields[4])
-        longitude = float(fields[5])
-        population = int(fields[14])
-        timezone = fields[17]
-        geoname_dict[geonameid] = {
-            "name": name,
-            "latitude": latitude,
-            "longitude": longitude,
-            "population": population,
-            "timezone": timezone
-        }
-    return geoname_dict
 
 
 # Поиск города по идентификатору geonameid
